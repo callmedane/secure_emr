@@ -1,0 +1,18 @@
+
+For backend
+cd backend
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+$env:JWT_SECRET_KEY="put-a-long-random-secret-here"
+python run.py
+
+python reset_db.py (optional if you want to clear the database)
+
+Backend is really running?
+Open: http://127.0.0.1:5000/api/health
+
+For frontend
+cd frontend
+npm install
+npm run dev
