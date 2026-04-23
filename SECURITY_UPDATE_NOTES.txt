@@ -1,0 +1,13 @@
+Security updates applied:
+- Seeded demo Doctor/Nurse/Patient accounts removed.
+- Bootstrap Admin remains the only seeded user for first access.
+- Staff account creation now follows a registration-style flow inside admin access.
+- New Doctor and Nurse accounts are stored in the database with MFA enabled at creation.
+- Staff credentials can be used on the same standard login page after secure MFA enrollment.
+- Public registration remains restricted to patients.
+
+Bootstrap admin credentials:
+username: admin
+password: ChangeMe123!
+
+If you have an older local database, run backend/reset_db.py to rebuild it with the cleaned seed state.

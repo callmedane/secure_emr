@@ -1,0 +1,26 @@
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
+import { api } from '../lib/api';
+import type { Patient } from '../lib/types';
+import { Button } from '../components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { Badge } from '../components/ui/badge';
+import { Separator } from '../components/ui/separator';
+import { ArrowLeft, Calendar, Clock, FileText, Phone, Pill, User } from 'lucide-react';
+
+export default function PatientDetailPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [patient, setPatient] = useState<Patient | null>(null);
+
+  useEffect(() => { if (id) void api.getPatient(id).then((r) => setPatient(r.patient)).catch(() => setPatient(null)); }, [id]);
+  if (!patient) return <div>Loading patient record...</div>;
+  const statusColor = (patient.status ?? 'Active') === 'Critical' ? 'bg-red-100 text-red-700' : (patient.status ?? 'Active') === 'Active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700';
+
+  return <div className="space-y-6">
+    <Button variant="ghost" onClick={() => navigate('/patients')}><ArrowLeft className="w-4 h-4 mr-2" />Back to Patients</Button>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6"><Card className="lg:col-span-2"><CardHeader><div className="flex items-center justify-between"><div><CardTitle className="text-2xl">{patient.name}</CardTitle><p className="text-gray-500 mt-1">Patient ID: {patient.id}</p></div><Badge className={statusColor}>{patient.status ?? 'Active'}</Badge></div></CardHeader><CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6"><div><p className="text-sm text-gray-500">Age / Gender</p><p className="font-medium">{patient.age} • {patient.gender}</p></div><div><p className="text-sm text-gray-500">Diagnosis</p><p className="font-medium">{patient.diagnosis}</p></div><div><p className="text-sm text-gray-500">Department</p><p className="font-medium">{patient.department}</p></div><div><p className="text-sm text-gray-500">Assigned Doctor</p><p className="font-medium">{patient.assignedDoctor}</p></div></CardContent></Card><Card><CardHeader><CardTitle>Quick Info</CardTitle></CardHeader><CardContent className="space-y-4"><div><p className="text-sm text-gray-500 flex items-center gap-2"><Phone className="w-4 h-4" />Contact Number</p><p className="font-medium">{patient.contactNumber}</p></div><Separator /><div><p className="text-sm text-gray-500 flex items-center gap-2"><User className="w-4 h-4" />Emergency Contact</p><p className="font-medium">{patient.emergencyContact}</p></div><Separator /><div><p className="text-sm text-gray-500 flex items-center gap-2"><Clock className="w-4 h-4" />Last Updated</p><p className="font-medium">{new Date(patient.lastUpdated).toLocaleString()}</p></div></CardContent></Card></div>
+    <Card><CardContent className="p-6"><Tabs defaultValue="prescriptions"><TabsList className="grid w-full grid-cols-3"><TabsTrigger value="prescriptions"><Pill className="w-4 h-4 mr-2" />Prescriptions</TabsTrigger><TabsTrigger value="history"><FileText className="w-4 h-4 mr-2" />Medical History</TabsTrigger><TabsTrigger value="notes"><Calendar className="w-4 h-4 mr-2" />Patient Notes</TabsTrigger></TabsList><TabsContent value="prescriptions" className="space-y-4 mt-6">{(patient.prescriptions ?? []).length === 0 ? <p className="text-center text-gray-500 py-8">No active prescriptions</p> : (patient.prescriptions ?? []).map((prescription, idx) => <Card key={idx} className="border-l-4 border-l-blue-500"><CardContent className="pt-6"><h4 className="font-semibold text-lg">{prescription.medication}</h4><p className="text-sm text-gray-500">Prescribed by {prescription.prescribedBy}</p><div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4"><div><p className="text-xs text-gray-500">Dosage</p><p className="font-medium">{prescription.dosage}</p></div><div><p className="text-xs text-gray-500">Frequency</p><p className="font-medium">{prescription.frequency}</p></div><div><p className="text-xs text-gray-500">Start</p><p className="font-medium">{prescription.startDate}</p></div><div><p className="text-xs text-gray-500">End</p><p className="font-medium">{prescription.endDate}</p></div></div></CardContent></Card>)}</TabsContent><TabsContent value="history" className="space-y-4 mt-6">{(patient.medicalHistory ?? []).map((entry, idx) => <Card key={idx}><CardContent className="pt-6"><div className="flex items-center justify-between"><div><p className="font-medium">{entry.type}</p><p className="text-sm text-gray-500">{entry.doctor}</p></div><Badge>{entry.date}</Badge></div><p className="text-gray-700 mt-3">{entry.description}</p></CardContent></Card>)}</TabsContent><TabsContent value="notes" className="mt-6"><div className="text-sm text-gray-600 space-y-2"><p><strong>Address:</strong> {patient.address}</p><p><strong>Blood Type:</strong> {patient.bloodType}</p><p><strong>Allergies:</strong> {(patient.allergies ?? []).length ? (patient.allergies ?? []).join(', ') : 'No known allergies'}</p></div></TabsContent></Tabs></CardContent></Card>
+  </div>;
+}

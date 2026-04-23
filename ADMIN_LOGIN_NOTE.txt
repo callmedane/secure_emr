@@ -1,0 +1,10 @@
+Admin access note
+
+The admin login page intentionally auto-fills the bootstrap admin account for first access.
+
+Seeded admin credentials:
+- Username: admin
+- Password: ChangeMe123!
+
+After the first secure login, enroll MFA and rotate the password immediately from Settings.
+If the app still asks for MFA unexpectedly, reset the database and start from a fresh bootstrap state.
